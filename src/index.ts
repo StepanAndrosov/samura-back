@@ -6,6 +6,11 @@ const port = process.env.PORT || 3000
 const jsonBody = express.json()
 app.use(jsonBody)
 
+interface Course {
+    id: number
+    title: string
+}
+
 const db = {
     courses: [
         {
@@ -23,12 +28,12 @@ app.get('/', (req: Request, res: Response) => {
     res.send('Hello World!')
 })
 
-app.get('/courses', (req: Request, res: Response) => {
+app.get('/courses', (req: Request, res: Response<Course[]>) => {
     res.json(db.courses)
     res.sendStatus(200)
 })
 
-app.post('/courses', (req: Request, res: Response) => {
+app.post('/courses', (req: Request<{}, {}, { title: string }>, res: Response<Course>) => {
     const createdCourse = {
         id: +(new Date),
         title: req.body.title
