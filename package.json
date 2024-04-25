@@ -6,9 +6,7 @@
   "scripts": {
     "watch": "tsc -w",
     "dev": "nodemon dist/index.js",
-    "test": "jest",
-    "build": "tcs",
-    "start": "node dist/index.js"
+    "test": "jest"
   },
   "dependencies": {
     "@types/jest": "^29.4.0",
