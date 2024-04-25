@@ -1,37 +1,12 @@
 import express, { Request, Response } from 'express'
-import { title } from 'process'
+import { db } from './db/db'
+import { Course, Product } from './types'
 
 export const app = express()
 const port = process.env.PORT || 3000
 
 const jsonBody = express.json()
 app.use(jsonBody)
-
-interface Course {
-    id: number
-    title: string
-}
-
-interface Product {
-    title: string
-}
-
-const db = {
-    products: [
-        { id: 1, title: 'tomato' },
-        { id: 2, title: 'orange' },
-    ],
-    courses: [
-        {
-            id: 1,
-            title: 'front'
-        },
-        {
-            id: 2,
-            title: 'back'
-        }
-    ]
-}
 
 app.get('/', (req: Request, res: Response) => {
     res.send('Hello World!')
@@ -86,7 +61,8 @@ app.get('/courses', (req: Request, res: Response<Course[]>) => {
 app.post('/courses', (req: Request<{}, {}, { title: string }>, res: Response<Course>) => {
     const createdCourse = {
         id: +(new Date),
-        title: req.body.title
+        title: req.body.title,
+        studentsCount: 0
     }
     db.courses.push(createdCourse)
     res.json(createdCourse)
