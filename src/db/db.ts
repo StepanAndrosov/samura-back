@@ -23,6 +23,15 @@ export const db = {
             id: 4,
             title: 'devops',
             studentsCount: 10
-        }
+        },
+    ],
+    users: [
+        { id: 1, userName: 'vasya' },
+        { id: 2, userName: 'petya' }
+    ],
+    studentsCourseBinding: [
+        { studentId: 1, courseId: 1, date: new Date(2024, 1, 1) },
+        { studentId: 1, courseId: 2, date: new Date(2024, 1, 1) },
+        { studentId: 2, courseId: 1, date: new Date(2024, 4, 1) }
     ]
 }

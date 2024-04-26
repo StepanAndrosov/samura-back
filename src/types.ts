@@ -10,3 +10,9 @@ export interface Product {
     id: number
     title: string
 }
+
+export interface UsersCourseBinding {
+    studentId: number,
+    courseId: number,
+    date: string
+}

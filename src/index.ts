@@ -8,6 +8,15 @@ const port = process.env.PORT || 3000
 const jsonBody = express.json()
 app.use(jsonBody)
 
+const HTTP_STATUSES = {
+    OK_200: 200,
+    CREATED_201: 201,
+    NO_CONTEND_204: 204,
+
+    BAD_REQUEST_400: 400,
+    NOT_FOUND_404: 404
+}
+
 app.get('/', (req: Request, res: Response) => {
     res.send('Hello World!')
 })
@@ -15,7 +24,7 @@ app.get('/', (req: Request, res: Response) => {
 app.get('/products', (req: Request, res: Response<Product[]>) => {
 
     res.json(db.products)
-    res.sendStatus(200)
+    res.sendStatus(HTTP_STATUSES.OK_200)
 })
 app.post('/products', (req: Request, res: Response<Product>) => {
     const product = {
@@ -24,7 +33,7 @@ app.post('/products', (req: Request, res: Response<Product>) => {
     }
     db.products.push(product)
     res.json(product)
-    res.sendStatus(201)
+    res.sendStatus(HTTP_STATUSES.CREATED_201)
 })
 
 app.get('/products/:productTitle', (req: Request, res: Response) => {
@@ -32,9 +41,9 @@ app.get('/products/:productTitle', (req: Request, res: Response) => {
     const product = db.products.find(p => p.title === title)
     if (product) {
         res.json(product)
-        res.sendStatus(200)
+        res.sendStatus(HTTP_STATUSES.OK_200)
     } else {
-        res.sendStatus(404)
+        res.sendStatus(HTTP_STATUSES.NOT_FOUND_404)
     }
 })
 
@@ -45,17 +54,17 @@ app.delete('/products/:id', (req: Request, res: Response<Product>) => {
         const findId = db.products.indexOf(product)
         if (findId > -1) {
             db.products.splice(findId, 1)
-            res.sendStatus(204)
-        } else res.sendStatus(404)
+            res.sendStatus(HTTP_STATUSES.NO_CONTEND_204)
+        } else res.sendStatus(HTTP_STATUSES.NOT_FOUND_404)
     } else {
-        res.sendStatus(404)
+        res.sendStatus(HTTP_STATUSES.NOT_FOUND_404)
     }
 
 })
 
 app.get('/courses', (req: Request, res: Response<Course[]>) => {
     res.json(db.courses)
-    res.sendStatus(200)
+    res.sendStatus(HTTP_STATUSES.OK_200)
 })
 
 app.post('/courses', (req: Request<{}, {}, { title: string }>, res: Response<Course>) => {
@@ -66,12 +75,12 @@ app.post('/courses', (req: Request<{}, {}, { title: string }>, res: Response<Cou
     }
     db.courses.push(createdCourse)
     res.json(createdCourse)
-    res.sendStatus(200)
+    res.sendStatus(HTTP_STATUSES.OK_200)
 })
 
 app.delete('/__test__/', (req: any, res: any) => {
     db.courses = []
-    res.sendStatus(204)
+    res.sendStatus(HTTP_STATUSES.NO_CONTEND_204)
 })
 
 app.listen(port, () => {
