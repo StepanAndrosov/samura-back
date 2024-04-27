@@ -12,7 +12,7 @@ const port = process.env.PORT || 3000
 const jsonBody = express.json()
 app.use(jsonBody)
 
-const HTTP_STATUSES = {
+export const HTTP_STATUSES = {
     OK_200: 200,
     CREATED_201: 201,
     NO_CONTEND_204: 204,
@@ -71,7 +71,7 @@ app.get('/courses', (req: Request, res: Response<CourseViewModel[]>) => {
     res.sendStatus(HTTP_STATUSES.OK_200)
 })
 
-app.get('/courses:id', (req: RequestWithParams<CourseIdParamsModel>, res: Response<CourseViewModel>) => {
+app.get('/courses/:id', (req: RequestWithParams<CourseIdParamsModel>, res: Response<CourseViewModel>) => {
     const foundCourse = db.courses.find(c => c.id === + req.params.id)
 
     if (!foundCourse) {
@@ -83,24 +83,33 @@ app.get('/courses:id', (req: RequestWithParams<CourseIdParamsModel>, res: Respon
 })
 
 app.post('/courses', (req: RequestWithBody<CourseCreateModel>, res: Response<CourseViewModel>) => {
+
+    if (!req.body.title) {
+        res.sendStatus(HTTP_STATUSES.NOT_FOUND_404)
+        return
+    }
     const createdCourse = {
-        id: +(new Date),
+        id: db.courses.length + 1,
         title: req.body.title,
         studentsCount: 0
     }
     db.courses.push(createdCourse)
-    res.json({ id: createdCourse.id, title: createdCourse.title })
-    res.sendStatus(HTTP_STATUSES.OK_200)
+    res.sendStatus(HTTP_STATUSES.CREATED_201)
+    res.json(createdCourse)
 })
 
-app.delete('/courses:id', (req: RequestWithParams<CourseIdParamsModel>, res: Response) => {
-    const foundCourse = db.courses.find(c => c.id === + req.params.id)
+app.delete('/courses/:id', (req: RequestWithParams<CourseIdParamsModel>, res: Response) => {
 
-    if (!foundCourse) {
+    const findId = db.products.filter((c) => c.id === +req.params.id)[0].id
+    console.log(findId, 'findId')
+    if (findId > -1) {
+        db.courses.splice(findId - 1, 1)
+        res.sendStatus(HTTP_STATUSES.NO_CONTEND_204)
+    } else {
         res.sendStatus(HTTP_STATUSES.NOT_FOUND_404)
         return
     }
-    res.sendStatus(HTTP_STATUSES.NO_CONTEND_204)
+
 })
 
 app.delete('/__test__/', (req: any, res: any) => {
