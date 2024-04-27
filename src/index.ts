@@ -1,6 +1,10 @@
 import express, { Request, Response } from 'express'
 import { db } from './db/db'
-import { Course, Product } from './types'
+import { Course, Product, RequestWithBody, RequestWithParams } from './types'
+import { CourseCreateModel } from './models/CourseCreateModel'
+import { CourseViewModel } from './models/CourseViewModel'
+import { ProductViewModel } from './models/ProductViewModel'
+import { CourseIdParamsModel } from './models/CourseIdParamsModel'
 
 export const app = express()
 const port = process.env.PORT || 3000
@@ -21,12 +25,12 @@ app.get('/', (req: Request, res: Response) => {
     res.send('Hello World!')
 })
 
-app.get('/products', (req: Request, res: Response<Product[]>) => {
+app.get('/products', (req: Request, res: Response<ProductViewModel[]>) => {
 
     res.json(db.products)
     res.sendStatus(HTTP_STATUSES.OK_200)
 })
-app.post('/products', (req: Request, res: Response<Product>) => {
+app.post('/products', (req: Request, res: Response<ProductViewModel>) => {
     const product = {
         title: req.body.title,
         id: +new Date()
@@ -36,7 +40,7 @@ app.post('/products', (req: Request, res: Response<Product>) => {
     res.sendStatus(HTTP_STATUSES.CREATED_201)
 })
 
-app.get('/products/:productTitle', (req: Request, res: Response) => {
+app.get('/products/:productTitle', (req: RequestWithParams<{ productTitle: string }>, res: Response) => {
     const title = req.params.productTitle
     const product = db.products.find(p => p.title === title)
     if (product) {
@@ -47,7 +51,7 @@ app.get('/products/:productTitle', (req: Request, res: Response) => {
     }
 })
 
-app.delete('/products/:id', (req: Request, res: Response<Product>) => {
+app.delete('/products/:id', (req: RequestWithParams<{ productTitle: string }>, res: Response<Product>) => {
     const title = req.params.productTitle
     let product = db.products.find(p => p.title === title)
     if (product) {
@@ -62,20 +66,41 @@ app.delete('/products/:id', (req: Request, res: Response<Product>) => {
 
 })
 
-app.get('/courses', (req: Request, res: Response<Course[]>) => {
-    res.json(db.courses)
+app.get('/courses', (req: Request, res: Response<CourseViewModel[]>) => {
+    res.json(db.courses.map((c) => ({ id: c.id, title: c.title })))
     res.sendStatus(HTTP_STATUSES.OK_200)
 })
 
-app.post('/courses', (req: Request<{}, {}, { title: string }>, res: Response<Course>) => {
+app.get('/courses:id', (req: RequestWithParams<CourseIdParamsModel>, res: Response<CourseViewModel>) => {
+    const foundCourse = db.courses.find(c => c.id === + req.params.id)
+
+    if (!foundCourse) {
+        res.sendStatus(HTTP_STATUSES.NOT_FOUND_404)
+        return
+    }
+    res.json({ id: foundCourse.id, title: foundCourse.title })
+    res.sendStatus(HTTP_STATUSES.OK_200)
+})
+
+app.post('/courses', (req: RequestWithBody<CourseCreateModel>, res: Response<CourseViewModel>) => {
     const createdCourse = {
         id: +(new Date),
         title: req.body.title,
         studentsCount: 0
     }
     db.courses.push(createdCourse)
-    res.json(createdCourse)
+    res.json({ id: createdCourse.id, title: createdCourse.title })
     res.sendStatus(HTTP_STATUSES.OK_200)
+})
+
+app.delete('/courses:id', (req: RequestWithParams<CourseIdParamsModel>, res: Response) => {
+    const foundCourse = db.courses.find(c => c.id === + req.params.id)
+
+    if (!foundCourse) {
+        res.sendStatus(HTTP_STATUSES.NOT_FOUND_404)
+        return
+    }
+    res.sendStatus(HTTP_STATUSES.NO_CONTEND_204)
 })
 
 app.delete('/__test__/', (req: any, res: any) => {

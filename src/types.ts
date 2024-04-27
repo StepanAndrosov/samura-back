@@ -1,3 +1,4 @@
+import type { Request } from "express"
 
 
 export interface Course {
@@ -16,3 +17,7 @@ export interface UsersCourseBinding {
     courseId: number,
     date: string
 }
+
+export type RequestWithBody<T> = Request<{}, {}, T>
+export type RequestWithParams<T> = Request<T>
+export type RequestWithQuery<T> = Request<{}, {}, {}, T>
